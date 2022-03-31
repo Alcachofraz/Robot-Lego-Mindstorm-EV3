@@ -4,7 +4,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.io.PrintStream;
 
 public class RobotInterface extends JFrame {
 
@@ -14,7 +13,8 @@ public class RobotInterface extends JFrame {
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                Variables.getRobot().CloseEV3();
+                //Variables.getRobot().CloseEV3();
+                Variables.getRobot().close();
             }
         });
 
@@ -49,7 +49,6 @@ public class RobotInterface extends JFrame {
             }
             public void general() {
                 Variables.setRobotName(robotName.getText());
-                System.out.print(robotName.getText());
             }
         });
         radius.getDocument().addDocumentListener(new DocumentListener() {
@@ -99,12 +98,13 @@ public class RobotInterface extends JFrame {
         on.addItemListener((l) -> {
             if (l.getStateChange() == ItemEvent.SELECTED) {
                 Variables.setOn(true);
-                if (!Variables.getRobot().OpenEV3(Variables.getRobotName())) {
+                if (/*!Variables.getRobot().OpenEV3(Variables.getRobotName())*/!Variables.getRobot().open(Variables.getRobotName())) {
                     Variables.setOn(false);
                 }
             }
             else {
-                Variables.getRobot().CloseEV3();
+                //Variables.getRobot().CloseEV3();
+                Variables.getRobot().close();
                 Variables.setOn(false);
             }
         });
@@ -150,27 +150,32 @@ public class RobotInterface extends JFrame {
 
         frontButton.setText("Forward");
         frontButton.addActionListener((e) -> {
-            Variables.getRobot().Reta(Variables.getDistance());
-            Variables.getRobot().Parar(false);
+            //Variables.getRobot().Reta(Variables.getDistance());
+            //Variables.getRobot().Parar(false);
+            Variables.getRobot().forward(Variables.getDistance());
         });
         backButton.setText("Backward");
         backButton.addActionListener((e) -> {
-            Variables.getRobot().Reta(-Variables.getDistance());
-            Variables.getRobot().Parar(false);
+            //Variables.getRobot().Reta(-Variables.getDistance());
+            //Variables.getRobot().Parar(false);
+            Variables.getRobot().forward(-Variables.getDistance());
         });
         rightButton.setText("Right");
         rightButton.addActionListener((e) -> {
-            Variables.getRobot().CurvarDireita(Variables.getRadius(), Variables.getAngle());
-            Variables.getRobot().Parar(false);
+            //Variables.getRobot().CurvarDireita(Variables.getRadius(), Variables.getAngle());
+            //Variables.getRobot().Parar(false);
+            Variables.getRobot().turnRight(Variables.getRadius(), Variables.getAngle());
         });
         leftButton.setText("Left");
         leftButton.addActionListener((e) -> {
-            Variables.getRobot().CurvarEsquerda(Variables.getRadius(), Variables.getAngle());
-            Variables.getRobot().Parar(false);
+            //Variables.getRobot().CurvarEsquerda(Variables.getRadius(), Variables.getAngle());
+            //Variables.getRobot().Parar(false);
+            Variables.getRobot().turnLeft(Variables.getRadius(), Variables.getAngle());
         });
         stopButton.setText("Stop");
         stopButton.addActionListener((e) -> {
-            Variables.getRobot().Parar(true);
+            //Variables.getRobot().Parar(true);
+            Variables.getRobot().stopNow();
         });
         controllerPanel.add(new JLabel(""));
         controllerPanel.add(frontButton);

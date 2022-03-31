@@ -2,7 +2,8 @@ public class Variables {
     private static String robotName = "";
     private static boolean on = false;
     private static int radius = 0, angle = 0, distance = 0;
-    private static RobotLegoEV3 robot = new RobotLegoEV3();
+    //private static RobotLegoEV3 robot = new RobotLegoEV3();
+    private static Robot robot = new Robot();
 
     static public String getRobotName() {
         return robotName;
@@ -44,11 +45,19 @@ public class Variables {
         Variables.distance = distance;
     }
 
-    static public RobotLegoEV3 getRobot() {
+    /*static public RobotLegoEV3 getRobot() {
+        return robot;
+    }*/
+
+    static public Robot getRobot() {
         return robot;
     }
 
-    static public void setRobot(RobotLegoEV3 robot) {
+    /*static public void setRobot(RobotLegoEV3 robot) {
+        Variables.robot = robot;
+    }*/
+
+    static public void setRobot(Robot robot) {
         Variables.robot = robot;
     }
 }
