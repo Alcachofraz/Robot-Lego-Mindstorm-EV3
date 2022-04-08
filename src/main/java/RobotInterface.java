@@ -175,7 +175,7 @@ public class RobotInterface extends JFrame {
         stopButton.setText("Stop");
         stopButton.addActionListener((e) -> {
             //Variables.getRobot().Parar(true);
-            Variables.getRobot().stopNow();
+            Variables.getRobot().stop(true);
         });
         controllerPanel.add(new JLabel(""));
         controllerPanel.add(frontButton);

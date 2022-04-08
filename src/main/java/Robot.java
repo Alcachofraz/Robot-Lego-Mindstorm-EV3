@@ -1,19 +1,10 @@
-import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 public class Robot {
     final double WHEEL_RADIUS = 2.8;
-    final double WHEEL_DISTANCE = 9.0;
+    final double WHEEL_DISTANCE = 9.5;
     final int WHEEL_RIGHT = 4;
     final int WHEEL_LEFT = 2;
     final int WHEELS_BOTH = 6;
     final int DEFAULT_SPEED = 50;
-    final int ROBOT_COMMUNICATION_DELAY = 50;
-
-    private final ArrayList<ScheduledExecutorService> executors = new ArrayList<>();
-
     private final InterpretadorEV3 interpreter;
 
     public Robot() {
@@ -28,13 +19,9 @@ public class Robot {
         interpreter.CloseEV3();
     }
 
-    /**
-     * Shut down all executors.
-     */
-    public void clearExecutors() {
-        for (ScheduledExecutorService executor : executors) {
-            executor.shutdown();
-        }
+    private double averageRotationCount() {
+        int[] rotations = interpreter.RotationCount(WHEEL_RIGHT, WHEEL_LEFT);
+        return Math.abs((rotations[0] + rotations[1]) / 2.0);
     }
 
     /**
@@ -42,20 +29,30 @@ public class Robot {
      * @param distanceCm distance do move in cm.
      */
     public void forward(double distanceCm) {
-        clearExecutors();
-        interpreter.ResetAll();
         double rads = Math.abs(distanceCm) / WHEEL_RADIUS;
         double degrees = (rads * 180) / Math.PI;
         int speed = distanceCm < 0 ? -DEFAULT_SPEED : DEFAULT_SPEED;
-        interpreter.OnFwd(WHEEL_RIGHT, speed, WHEEL_LEFT, speed);
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleAtFixedRate(() -> {
-            if (interpreter.RotationCount(WHEEL_RIGHT) <= -degrees || interpreter.RotationCount(WHEEL_RIGHT) >= degrees) {
-                stop();
-                executor.shutdown();
-            }
-        }, 0, ROBOT_COMMUNICATION_DELAY, TimeUnit.MILLISECONDS);
-        executors.add(executor);
+
+        Instruction instructionPrepare = new Instruction();
+        instructionPrepare.iteration = () -> {
+            interpreter.ResetAll();
+            interpreter.OnFwd(WHEEL_RIGHT, speed, WHEEL_LEFT, speed);
+            return true;
+        };
+        Instruction instructionIteration = new Instruction();
+        instructionIteration.iteration = () -> {
+            double rotation = averageRotationCount();
+            double delta = rotation - instructionIteration.rotationCount;
+            instructionIteration.rotationCount = (int)Math.round(rotation);
+            return rotation + delta >= degrees;
+        };
+        Variables.getStateMachine().queuePlace(
+                instructionPrepare
+        );
+        Variables.getStateMachine().queuePlace(
+                instructionIteration
+        );
+        stop(false);
     }
 
     /**
@@ -73,22 +70,37 @@ public class Robot {
      * @param angleDegrees angle of the turn in degrees.
      */
     public void turnRight(double radiusCm, double angleDegrees) {
-        clearExecutors();
-        interpreter.ResetAll();
         double factor = (radiusCm + (WHEEL_DISTANCE / 2)) / (radiusCm - (WHEEL_DISTANCE / 2));
-        double angleRads = (angleDegrees * Math.PI) / 180;
-        double distanceCm = angleRads * (radiusCm + (WHEEL_DISTANCE / 2));
+
+        int speedRight = (int) Math.round(DEFAULT_SPEED * 2 - (DEFAULT_SPEED * 2 * factor / (1 + factor)));
+        int speedLeft = (int) Math.round(DEFAULT_SPEED * 2 * factor / (1 + factor));
+
+        double angleRads = (Math.abs(angleDegrees) * Math.PI) / 180;
+        double distanceCm = angleRads * radiusCm;
         double rads = distanceCm / WHEEL_RADIUS;
         double degrees = (rads * 180) / Math.PI;
-        interpreter.OnFwd(WHEEL_RIGHT, (int) Math.round(DEFAULT_SPEED / factor), WHEEL_LEFT, DEFAULT_SPEED);
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleAtFixedRate(() -> {
-            if (interpreter.RotationCount(WHEEL_LEFT) >= degrees) {
-                stop();
-                executor.shutdown();
-            }
-        }, 0, ROBOT_COMMUNICATION_DELAY, TimeUnit.MILLISECONDS);
-        executors.add(executor);
+
+        Instruction instructionPrepare = new Instruction();
+        instructionPrepare.iteration = () -> {
+            interpreter.ResetAll();
+            interpreter.OnFwd(WHEEL_RIGHT, angleDegrees < 0 ? -speedRight : speedRight, WHEEL_LEFT, angleDegrees < 0 ? -speedLeft : speedLeft);
+            return true;
+        };
+        Instruction instructionIteration = new Instruction();
+        instructionIteration.iteration = () -> {
+            double rotation = averageRotationCount();
+            double delta = rotation - instructionIteration.rotationCount;
+            instructionIteration.rotationCount = (int)Math.round(rotation);
+            return rotation + delta >= degrees;
+        };
+
+        Variables.getStateMachine().queuePlace(
+                instructionPrepare
+        );
+        Variables.getStateMachine().queuePlace(
+                instructionIteration
+        );
+        stop(false);
     }
 
     /**
@@ -97,38 +109,53 @@ public class Robot {
      * @param angleDegrees angle of the turn in degrees.
      */
     public void turnLeft(double radiusCm, double angleDegrees) {
-        clearExecutors();
-        interpreter.ResetAll();
         double factor = (radiusCm + (WHEEL_DISTANCE / 2)) / (radiusCm - (WHEEL_DISTANCE / 2));
-        double angleRads = (angleDegrees * Math.PI) / 180;
-        double distanceCm = angleRads * (radiusCm + (WHEEL_DISTANCE / 2));
+
+        int speedLeft = (int) Math.round(DEFAULT_SPEED * 2 - (DEFAULT_SPEED * 2 * factor / (1 + factor)));
+        int speedRight = (int) Math.round(DEFAULT_SPEED * 2 * factor / (1 + factor));
+
+        double angleRads = (Math.abs(angleDegrees) * Math.PI) / 180;
+        double distanceCm = angleRads * radiusCm;
         double rads = distanceCm / WHEEL_RADIUS;
         double degrees = (rads * 180) / Math.PI;
-        interpreter.OnFwd(WHEEL_RIGHT, DEFAULT_SPEED, WHEEL_LEFT, (int) Math.round(DEFAULT_SPEED / factor));
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleAtFixedRate(() -> {
-            if (interpreter.RotationCount(WHEEL_RIGHT) >= degrees) {
-                stop();
-                executor.shutdown();
-            }
-        }, 0, ROBOT_COMMUNICATION_DELAY, TimeUnit.MILLISECONDS);
-        executors.add(executor);
+
+        Instruction instructionPrepare = new Instruction();
+        instructionPrepare.iteration = () -> {
+            interpreter.OnFwd(WHEEL_RIGHT, angleDegrees < 0 ? -speedRight : speedRight, WHEEL_LEFT, angleDegrees < 0 ? -speedLeft : speedLeft);
+            return true;
+        };
+        Instruction instructionIteration = new Instruction();
+        double initialRotationCount = averageRotationCount();
+        instructionIteration.rotationCount = initialRotationCount;
+        instructionIteration.iteration = () -> {
+            double rotation = averageRotationCount();
+            //System.out.println(rotation);
+            double delta = rotation - instructionIteration.rotationCount;
+            instructionIteration.rotationCount = rotation;
+            return rotation + delta - initialRotationCount > degrees;
+        };
+
+        Variables.getStateMachine().queuePlace(
+                instructionPrepare
+        );
+        Variables.getStateMachine().queuePlace(
+                instructionIteration
+        );
+        stop(false);
     }
 
     /**
-     * Robot stops immediately, ignoring all queued
-     * instructions.
+     * Robot stops.
+     * @param async If true, stops asynchronously (overriding all other
+     *              instructions in queue). Otherwise, waits for all other instructions in queue.
      */
-    public void stopNow() {
-        clearExecutors();
-        interpreter.Off(WHEELS_BOTH);
-    }
-
-    /**
-     * Robot stops once every other instruction in queue
-     * has been executed.
-     */
-    public void stop() {
-        interpreter.Off(WHEELS_BOTH);
+    public void stop(boolean async) {
+        Instruction instruction = new Instruction();
+        instruction.iteration = () -> {
+            interpreter.Off(WHEELS_BOTH);
+            return true;
+        };
+        if (async) Variables.getStateMachine().queueOverride(instruction);
+        else Variables.getStateMachine().queuePlace(instruction);
     }
 }

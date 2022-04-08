@@ -2,14 +2,15 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class StateMachine {
-    static final int ROBOT_COMMUNICATION_DELAY_MS = 50;
 
     private Queue<Instruction> queue;
 
     private final ScheduledExecutorService stateMachineExecutor;
+    private ScheduledFuture<?> stateMachineHandle;
 
     /**
      * Removes head of instruction queue if it exists and
@@ -18,7 +19,7 @@ public class StateMachine {
      */
     private final Runnable stateMachine = () -> {
         Instruction instruction = queue.peek();
-        if (instruction != null && instruction.iterate()) {
+        if (instruction != null && instruction.iteration.iterate()) {
             queue.remove();
         }
     };
@@ -37,10 +38,10 @@ public class StateMachine {
      * Start state machine.
      */
     public void wakeup() {
-        this.stateMachineExecutor.scheduleAtFixedRate(
+        stateMachineHandle = this.stateMachineExecutor.scheduleAtFixedRate(
                 stateMachine,
                 0,
-                ROBOT_COMMUNICATION_DELAY_MS,
+                Variables.ROBOT_COMMUNICATION_DELAY_MS,
                 TimeUnit.MILLISECONDS
         );
     }
@@ -49,7 +50,7 @@ public class StateMachine {
      * Stop state machine.
      */
     public void sleep() {
-        this.stateMachineExecutor.shutdown();
+        this.stateMachineHandle.cancel(false);
     }
 
     /**
