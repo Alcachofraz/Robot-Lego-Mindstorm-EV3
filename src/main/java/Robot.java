@@ -1,6 +1,6 @@
 public class Robot {
     final double WHEEL_RADIUS = 2.8;
-    final double WHEEL_DISTANCE = 9.5;
+    final double WHEEL_DISTANCE = 9.6;
     final int WHEEL_RIGHT = 4;
     final int WHEEL_LEFT = 2;
     final int WHEELS_BOTH = 6;
@@ -33,18 +33,21 @@ public class Robot {
         double degrees = (rads * 180) / Math.PI;
         int speed = distanceCm < 0 ? -DEFAULT_SPEED : DEFAULT_SPEED;
 
+        Instruction instructionIteration = new Instruction();
+
         Instruction instructionPrepare = new Instruction();
         instructionPrepare.iteration = () -> {
-            interpreter.ResetAll();
+            double temp = averageRotationCount();
+            instructionIteration.rotationCount = 0;
+            instructionIteration.initialRotationCount = temp;
             interpreter.OnFwd(WHEEL_RIGHT, speed, WHEEL_LEFT, speed);
             return true;
         };
-        Instruction instructionIteration = new Instruction();
         instructionIteration.iteration = () -> {
-            double rotation = averageRotationCount();
-            double delta = rotation - instructionIteration.rotationCount;
-            instructionIteration.rotationCount = (int)Math.round(rotation);
-            return rotation + delta >= degrees;
+            double rotation = Math.abs(averageRotationCount() - instructionIteration.initialRotationCount);
+            double delta = Variables.usePrediction ? rotation - instructionIteration.rotationCount : 0;
+            instructionIteration.rotationCount = rotation;
+            return rotation + delta > degrees;
         };
         Variables.getStateMachine().queuePlace(
                 instructionPrepare
@@ -80,18 +83,20 @@ public class Robot {
         double rads = distanceCm / WHEEL_RADIUS;
         double degrees = (rads * 180) / Math.PI;
 
+        Instruction instructionIteration = new Instruction();
         Instruction instructionPrepare = new Instruction();
         instructionPrepare.iteration = () -> {
-            interpreter.ResetAll();
+            double temp = averageRotationCount();
+            instructionIteration.rotationCount = 0;
+            instructionIteration.initialRotationCount = temp;
             interpreter.OnFwd(WHEEL_RIGHT, angleDegrees < 0 ? -speedRight : speedRight, WHEEL_LEFT, angleDegrees < 0 ? -speedLeft : speedLeft);
             return true;
         };
-        Instruction instructionIteration = new Instruction();
         instructionIteration.iteration = () -> {
-            double rotation = averageRotationCount();
-            double delta = rotation - instructionIteration.rotationCount;
-            instructionIteration.rotationCount = (int)Math.round(rotation);
-            return rotation + delta >= degrees;
+            double rotation = Math.abs(averageRotationCount() - instructionIteration.initialRotationCount);
+            double delta = Variables.usePrediction ? rotation - instructionIteration.rotationCount : 0;
+            instructionIteration.rotationCount = rotation;
+            return rotation + delta > degrees;
         };
 
         Variables.getStateMachine().queuePlace(
@@ -119,20 +124,20 @@ public class Robot {
         double rads = distanceCm / WHEEL_RADIUS;
         double degrees = (rads * 180) / Math.PI;
 
+        Instruction instructionIteration = new Instruction();
         Instruction instructionPrepare = new Instruction();
         instructionPrepare.iteration = () -> {
+            double temp = averageRotationCount();
+            instructionIteration.rotationCount = 0;
+            instructionIteration.initialRotationCount = temp;
             interpreter.OnFwd(WHEEL_RIGHT, angleDegrees < 0 ? -speedRight : speedRight, WHEEL_LEFT, angleDegrees < 0 ? -speedLeft : speedLeft);
             return true;
         };
-        Instruction instructionIteration = new Instruction();
-        double initialRotationCount = averageRotationCount();
-        instructionIteration.rotationCount = initialRotationCount;
         instructionIteration.iteration = () -> {
-            double rotation = averageRotationCount();
-            //System.out.println(rotation);
-            double delta = rotation - instructionIteration.rotationCount;
+            double rotation = Math.abs(averageRotationCount() - instructionIteration.initialRotationCount);
+            double delta = Variables.usePrediction ? rotation - instructionIteration.rotationCount : 0;
             instructionIteration.rotationCount = rotation;
-            return rotation + delta - initialRotationCount > degrees;
+            return rotation + delta > degrees;
         };
 
         Variables.getStateMachine().queuePlace(

@@ -1,11 +1,12 @@
 public class Variables {
-    static final int ROBOT_COMMUNICATION_DELAY_MS = 50;
+    static final int ROBOT_COMMUNICATION_DELAY_MS = 20;
+    static final boolean usePrediction = true;
     private static String robotName = "";
     private static boolean on = false;
     private static int radius = 0, angle = 0, distance = 0;
     //private static RobotLegoEV3 robot = new RobotLegoEV3();
     private static Robot robot = new Robot();
-    private static StateMachine stateMachine = new StateMachine();
+    private static final StateMachine stateMachine = new StateMachine();
 
     static public String getRobotName() {
         return robotName;
