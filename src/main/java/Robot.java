@@ -1,10 +1,4 @@
 public class Robot {
-    final double WHEEL_RADIUS = 2.8;
-    final double WHEEL_DISTANCE = 9.6;
-    final int WHEEL_RIGHT = 4;
-    final int WHEEL_LEFT = 2;
-    final int WHEELS_BOTH = 6;
-    final int DEFAULT_SPEED = 50;
     private final InterpretadorEV3 interpreter;
 
     public Robot() {
@@ -20,7 +14,7 @@ public class Robot {
     }
 
     private double averageRotationCount() {
-        int[] rotations = interpreter.RotationCount(WHEEL_RIGHT, WHEEL_LEFT);
+        int[] rotations = interpreter.RotationCount(Variables.WHEEL_RIGHT, Variables.WHEEL_LEFT);
         return Math.abs((rotations[0] + rotations[1]) / 2.0);
     }
 
@@ -29,9 +23,9 @@ public class Robot {
      * @param distanceCm distance do move in cm.
      */
     public void forward(double distanceCm) {
-        double rads = Math.abs(distanceCm) / WHEEL_RADIUS;
+        double rads = Math.abs(distanceCm) / Variables.WHEEL_RADIUS;
         double degrees = (rads * 180) / Math.PI;
-        int speed = distanceCm < 0 ? -DEFAULT_SPEED : DEFAULT_SPEED;
+        int speed = distanceCm < 0 ? -Variables.DEFAULT_SPEED : Variables.DEFAULT_SPEED;
 
         Instruction instructionIteration = new Instruction();
 
@@ -40,7 +34,7 @@ public class Robot {
             double temp = averageRotationCount();
             instructionIteration.rotationCount = 0;
             instructionIteration.initialRotationCount = temp;
-            interpreter.OnFwd(WHEEL_RIGHT, speed, WHEEL_LEFT, speed);
+            interpreter.OnFwd(Variables.WHEEL_RIGHT, speed, Variables.WHEEL_LEFT, speed);
             return true;
         };
         instructionIteration.iteration = () -> {
@@ -55,7 +49,6 @@ public class Robot {
         Variables.getStateMachine().queuePlace(
                 instructionIteration
         );
-        stop(false);
     }
 
     /**
@@ -73,14 +66,22 @@ public class Robot {
      * @param angleDegrees angle of the turn in degrees.
      */
     public void turnRight(double radiusCm, double angleDegrees) {
-        double factor = (radiusCm + (WHEEL_DISTANCE / 2)) / (radiusCm - (WHEEL_DISTANCE / 2));
+        double factor = (radiusCm + (Variables.WHEEL_DISTANCE / 2)) / (radiusCm - (Variables.WHEEL_DISTANCE / 2));
 
-        int speedRight = (int) Math.round(DEFAULT_SPEED * 2 - (DEFAULT_SPEED * 2 * factor / (1 + factor)));
-        int speedLeft = (int) Math.round(DEFAULT_SPEED * 2 * factor / (1 + factor));
+        int tempSpeedRight = (int) Math.round(Variables.DEFAULT_SPEED * 2 - (Variables.DEFAULT_SPEED * 2 * factor / (1 + factor)));
+        int tempSpeedLeft = (int) Math.round(Variables.DEFAULT_SPEED * 2 * factor / (1 + factor));
+
+        tempSpeedLeft = Math.min(tempSpeedLeft, Variables.MAX_SPEED);
+        tempSpeedRight = Math.min(tempSpeedRight, Variables.MAX_SPEED);
+        tempSpeedLeft = Math.max(tempSpeedLeft, Variables.MIN_SPEED);
+        tempSpeedRight = Math.max(tempSpeedRight, Variables.MIN_SPEED);
+
+        int speedLeft = tempSpeedLeft;
+        int speedRight = tempSpeedRight;
 
         double angleRads = (Math.abs(angleDegrees) * Math.PI) / 180;
         double distanceCm = angleRads * radiusCm;
-        double rads = distanceCm / WHEEL_RADIUS;
+        double rads = distanceCm / Variables.WHEEL_RADIUS;
         double degrees = (rads * 180) / Math.PI;
 
         Instruction instructionIteration = new Instruction();
@@ -89,7 +90,7 @@ public class Robot {
             double temp = averageRotationCount();
             instructionIteration.rotationCount = 0;
             instructionIteration.initialRotationCount = temp;
-            interpreter.OnFwd(WHEEL_RIGHT, angleDegrees < 0 ? -speedRight : speedRight, WHEEL_LEFT, angleDegrees < 0 ? -speedLeft : speedLeft);
+            interpreter.OnFwd(Variables.WHEEL_RIGHT, angleDegrees < 0 ? -speedRight : speedRight, Variables.WHEEL_LEFT, angleDegrees < 0 ? -speedLeft : speedLeft);
             return true;
         };
         instructionIteration.iteration = () -> {
@@ -105,7 +106,6 @@ public class Robot {
         Variables.getStateMachine().queuePlace(
                 instructionIteration
         );
-        stop(false);
     }
 
     /**
@@ -114,14 +114,22 @@ public class Robot {
      * @param angleDegrees angle of the turn in degrees.
      */
     public void turnLeft(double radiusCm, double angleDegrees) {
-        double factor = (radiusCm + (WHEEL_DISTANCE / 2)) / (radiusCm - (WHEEL_DISTANCE / 2));
+        double factor = (radiusCm + (Variables.WHEEL_DISTANCE / 2)) / (radiusCm - (Variables.WHEEL_DISTANCE / 2));
 
-        int speedLeft = (int) Math.round(DEFAULT_SPEED * 2 - (DEFAULT_SPEED * 2 * factor / (1 + factor)));
-        int speedRight = (int) Math.round(DEFAULT_SPEED * 2 * factor / (1 + factor));
+        int tempSpeedLeft = (int) Math.round(Variables.DEFAULT_SPEED * 2 - (Variables.DEFAULT_SPEED * 2 * factor / (1 + factor)));
+        int tempSpeedRight = (int) Math.round(Variables.DEFAULT_SPEED * 2 * factor / (1 + factor));
+
+        tempSpeedLeft = Math.min(tempSpeedLeft, Variables.MAX_SPEED);
+        tempSpeedRight = Math.min(tempSpeedRight, Variables.MAX_SPEED);
+        tempSpeedLeft = Math.max(tempSpeedLeft, Variables.MIN_SPEED);
+        tempSpeedRight = Math.max(tempSpeedRight, Variables.MIN_SPEED);
+
+        int speedLeft = tempSpeedLeft;
+        int speedRight = tempSpeedRight;
 
         double angleRads = (Math.abs(angleDegrees) * Math.PI) / 180;
         double distanceCm = angleRads * radiusCm;
-        double rads = distanceCm / WHEEL_RADIUS;
+        double rads = distanceCm / Variables.WHEEL_RADIUS;
         double degrees = (rads * 180) / Math.PI;
 
         Instruction instructionIteration = new Instruction();
@@ -130,7 +138,7 @@ public class Robot {
             double temp = averageRotationCount();
             instructionIteration.rotationCount = 0;
             instructionIteration.initialRotationCount = temp;
-            interpreter.OnFwd(WHEEL_RIGHT, angleDegrees < 0 ? -speedRight : speedRight, WHEEL_LEFT, angleDegrees < 0 ? -speedLeft : speedLeft);
+            interpreter.OnFwd(Variables.WHEEL_RIGHT, angleDegrees < 0 ? -speedRight : speedRight, Variables.WHEEL_LEFT, angleDegrees < 0 ? -speedLeft : speedLeft);
             return true;
         };
         instructionIteration.iteration = () -> {
@@ -146,7 +154,6 @@ public class Robot {
         Variables.getStateMachine().queuePlace(
                 instructionIteration
         );
-        stop(false);
     }
 
     /**
@@ -157,7 +164,7 @@ public class Robot {
     public void stop(boolean async) {
         Instruction instruction = new Instruction();
         instruction.iteration = () -> {
-            interpreter.Off(WHEELS_BOTH);
+            interpreter.Off(Variables.WHEELS_BOTH);
             return true;
         };
         if (async) Variables.getStateMachine().queueOverride(instruction);

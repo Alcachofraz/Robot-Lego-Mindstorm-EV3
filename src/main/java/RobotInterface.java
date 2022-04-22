@@ -62,7 +62,7 @@ public class RobotInterface extends JFrame {
                 general();
             }
             public void general() {
-                Variables.setRadius(Integer.parseInt(radius.getText().isEmpty() ? "0" : radius.getText()));
+                Variables.setRadius(Double.parseDouble(radius.getText().isEmpty() ? "0" : radius.getText()));
             }
         });
         angle.getDocument().addDocumentListener(new DocumentListener() {
@@ -76,7 +76,7 @@ public class RobotInterface extends JFrame {
                 general();
             }
             public void general() {
-                Variables.setAngle(Integer.parseInt(angle.getText().isEmpty() ? "0" : angle.getText()));
+                Variables.setAngle(Double.parseDouble(angle.getText().isEmpty() ? "0" : angle.getText()));
             }
         });
         distance.getDocument().addDocumentListener(new DocumentListener() {
@@ -90,7 +90,7 @@ public class RobotInterface extends JFrame {
                 general();
             }
             public void general() {
-                Variables.setDistance(Integer.parseInt(distance.getText().isEmpty() ? "0" : distance.getText()));
+                Variables.setDistance(Double.parseDouble(distance.getText().isEmpty() ? "0" : distance.getText()));
             }
         });
 
@@ -150,31 +150,26 @@ public class RobotInterface extends JFrame {
 
         frontButton.setText("Forward");
         frontButton.addActionListener((e) -> {
-            //Variables.getRobot().Reta(Variables.getDistance());
-            //Variables.getRobot().Parar(false);
             Variables.getRobot().forward(Variables.getDistance());
+            Variables.getRobot().stop(false);
         });
         backButton.setText("Backward");
         backButton.addActionListener((e) -> {
-            //Variables.getRobot().Reta(-Variables.getDistance());
-            //Variables.getRobot().Parar(false);
             Variables.getRobot().forward(-Variables.getDistance());
+            Variables.getRobot().stop(false);
         });
         rightButton.setText("Right");
         rightButton.addActionListener((e) -> {
-            //Variables.getRobot().CurvarDireita(Variables.getRadius(), Variables.getAngle());
-            //Variables.getRobot().Parar(false);
             Variables.getRobot().turnRight(Variables.getRadius(), Variables.getAngle());
+            Variables.getRobot().stop(false);
         });
         leftButton.setText("Left");
         leftButton.addActionListener((e) -> {
-            //Variables.getRobot().CurvarEsquerda(Variables.getRadius(), Variables.getAngle());
-            //Variables.getRobot().Parar(false);
             Variables.getRobot().turnLeft(Variables.getRadius(), Variables.getAngle());
+            Variables.getRobot().stop(false);
         });
         stopButton.setText("Stop");
         stopButton.addActionListener((e) -> {
-            //Variables.getRobot().Parar(true);
             Variables.getRobot().stop(true);
         });
         controllerPanel.add(new JLabel(""));
