@@ -170,4 +170,14 @@ public class Robot {
         if (async) Variables.getStateMachine().queueOverride(instruction);
         else Variables.getStateMachine().queuePlace(instruction);
     }
+
+    /**
+     * Robot blocks (machine state stops receiving instructions) until
+     * a collision is detected.
+     */
+    public void untilCollision() {
+        Instruction instruction = new Instruction();
+        instruction.iteration = () -> interpreter.SensorTouch(Variables.TOUCH_SENSOR) == 1;
+        Variables.getStateMachine().queuePlace(instruction);
+    }
 }

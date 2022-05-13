@@ -29,13 +29,19 @@ public class RobotInterface extends JFrame {
     }
 
     JPanel buildHeaderPanel() {
-        JPanel headerPanel = new JPanel(new GridLayout(2, 3));
+        JPanel headerPanel = new JPanel(new GridLayout(4, 4));
 
         JTextField robotName = new JTextField("");
         JTextField radius = new JTextField("0");
         JTextField angle = new JTextField("0");
         JTextField distance = new JTextField("0");
+        JTextField xf = new JTextField("0");
+        JTextField yf = new JTextField("0");
+        JTextField of = new JTextField("0");
+        JTextField wheelDistance = new JTextField("9.6");
         JCheckBox on = new JCheckBox();
+        JButton trajectory = new JButton("Run trajectory");
+        JButton wallChaser = new JButton("Run wall chaser");
 
         robotName.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
@@ -49,6 +55,20 @@ public class RobotInterface extends JFrame {
             }
             public void general() {
                 Variables.setRobotName(robotName.getText());
+            }
+        });
+        wheelDistance.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                general();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                general();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                general();
+            }
+            public void general() {
+                Variables.setWheelDistance(Double.parseDouble(wheelDistance.getText().isEmpty() ? "0" : wheelDistance.getText()));
             }
         });
         radius.getDocument().addDocumentListener(new DocumentListener() {
@@ -93,17 +113,66 @@ public class RobotInterface extends JFrame {
                 Variables.setDistance(Double.parseDouble(distance.getText().isEmpty() ? "0" : distance.getText()));
             }
         });
+        xf.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                general();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                general();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                general();
+            }
+            public void general() {
+                Variables.setXf(Double.parseDouble(xf.getText().isEmpty() ? "0" : xf.getText()));
+            }
+        });
+        yf.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                general();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                general();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                general();
+            }
+            public void general() {
+                Variables.setYf(Double.parseDouble(yf.getText().isEmpty() ? "0" : yf.getText()));
+            }
+        });
+        of.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                general();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                general();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                general();
+            }
+            public void general() {
+                Variables.setOf(Double.parseDouble(of.getText().isEmpty() ? "0" : of.getText()));
+            }
+        });
+        trajectory.addActionListener((e) -> TrajectoryManager.run((int) Variables.getXf(), (int) Variables.getYf(), (int) Variables.getOf()));
+        wallChaser.addActionListener((e) -> TrajectoryManager.runWallChaser());
 
         on.setText("On/Off");
         on.addItemListener((l) -> {
             if (l.getStateChange() == ItemEvent.SELECTED) {
                 Variables.setOn(true);
-                if (/*!Variables.getRobot().OpenEV3(Variables.getRobotName())*/!Variables.getRobot().open(Variables.getRobotName())) {
+                if (!Variables.getRobot().open(Variables.getRobotName())) {
                     Variables.setOn(false);
+                    on.setEnabled(false);
+                }
+                else {
+                    Variables.getRobot().stop(true);
+                    on.setEnabled(true);
                 }
             }
             else {
-                //Variables.getRobot().CloseEV3();
+                on.setEnabled(false);
                 Variables.getRobot().close();
                 Variables.setOn(false);
             }
@@ -111,10 +180,23 @@ public class RobotInterface extends JFrame {
 
         headerPanel.add(buildLabelledTextField("Robot Name:", robotName));
         headerPanel.add(on);
+        headerPanel.add(buildLabelledTextField("Wheel Distance:", wheelDistance));
         headerPanel.add(new JLabel(""));
+
         headerPanel.add(buildLabelledTextField("Radius:", radius));
         headerPanel.add(buildLabelledTextField("Angle:", angle));
         headerPanel.add(buildLabelledTextField("Distance:", distance));
+        headerPanel.add(new JLabel(""));
+
+        headerPanel.add(buildLabelledTextField("Xf:", xf));
+        headerPanel.add(buildLabelledTextField("Yf:", yf));
+        headerPanel.add(buildLabelledTextField("Of:", of));
+        headerPanel.add(trajectory);
+
+        headerPanel.add(wallChaser);
+        headerPanel.add(new JLabel(""));
+        headerPanel.add(new JLabel(""));
+        headerPanel.add(new JLabel(""));
 
         return headerPanel;
     }
