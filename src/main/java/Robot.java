@@ -1,3 +1,5 @@
+import javax.swing.text.StyledEditorKit;
+
 public class Robot {
     private final InterpretadorEV3 interpreter;
 
@@ -175,9 +177,34 @@ public class Robot {
      * Robot blocks (machine state stops receiving instructions) until
      * a collision is detected.
      */
-    public void untilCollision() {
+    public void runWallChaser() {
         Instruction instruction = new Instruction();
-        instruction.iteration = () -> interpreter.SensorTouch(Variables.TOUCH_SENSOR) == 1;
+        Instruction prepare = new Instruction();
+        AlignmentManager manager = new AlignmentManager();
+        double rads = Math.abs(Variables.DISTANCE_BETWEEN_DETECTIONS_CM) / Variables.WHEEL_RADIUS;
+        double degrees = (rads * 180) / Math.PI;
+        prepare.iteration = () -> {
+            manager.setInitialRotationCount(averageRotationCount());
+            interpreter.OnFwd(Variables.WHEEL_RIGHT, Variables.DEFAULT_SPEED, Variables.WHEEL_LEFT, Variables.DEFAULT_SPEED);
+            return true;
+        };
+        instruction.iteration = () -> {
+            if (interpreter.SensorTouch(Variables.TOUCH_SENSOR) == 1) {
+                Variables.getRobot().forward(-70);
+                Variables.getRobot().turnLeft(20, 90);
+                Variables.getRobot().runWallChaser();
+                return true;
+            }
+            double rotation = Math.abs(averageRotationCount() - manager.getInitialRotationCount());
+            if (rotation > degrees) {
+                if (manager.setDistance(interpreter.SensorUS(Variables.DISTANCE_SENSOR))) {
+                    TrajectoryManager.run(manager.xf, manager.yf, manager.of);
+                    Variables.getRobot().runWallChaser();
+                    return true;
+                }
+            }
+            return false;
+        };
         Variables.getStateMachine().queuePlace(instruction);
     }
 }

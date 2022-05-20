@@ -68,7 +68,12 @@ public class RobotInterface extends JFrame {
                 general();
             }
             public void general() {
-                Variables.setWheelDistance(Double.parseDouble(wheelDistance.getText().isEmpty() ? "0" : wheelDistance.getText()));
+                try {
+                    Variables.setWheelDistance(Double.parseDouble(wheelDistance.getText()));
+                }
+                catch (Exception e) {
+                    Variables.setWheelDistance(9.6);
+                }
             }
         });
         radius.getDocument().addDocumentListener(new DocumentListener() {
@@ -82,7 +87,12 @@ public class RobotInterface extends JFrame {
                 general();
             }
             public void general() {
-                Variables.setRadius(Double.parseDouble(radius.getText().isEmpty() ? "0" : radius.getText()));
+                try {
+                    Variables.setRadius(Double.parseDouble(radius.getText()));
+                }
+                catch (Exception e) {
+                    Variables.setRadius(0);
+                }
             }
         });
         angle.getDocument().addDocumentListener(new DocumentListener() {
@@ -96,7 +106,12 @@ public class RobotInterface extends JFrame {
                 general();
             }
             public void general() {
-                Variables.setAngle(Double.parseDouble(angle.getText().isEmpty() ? "0" : angle.getText()));
+                try {
+                    Variables.setAngle(Double.parseDouble(angle.getText()));
+                }
+                catch (Exception e) {
+                    Variables.setAngle(0);
+                }
             }
         });
         distance.getDocument().addDocumentListener(new DocumentListener() {
@@ -110,7 +125,12 @@ public class RobotInterface extends JFrame {
                 general();
             }
             public void general() {
-                Variables.setDistance(Double.parseDouble(distance.getText().isEmpty() ? "0" : distance.getText()));
+                try {
+                    Variables.setDistance(Double.parseDouble(distance.getText()));
+                }
+                catch (Exception e) {
+                    Variables.setDistance(0);
+                }
             }
         });
         xf.getDocument().addDocumentListener(new DocumentListener() {
@@ -124,7 +144,12 @@ public class RobotInterface extends JFrame {
                 general();
             }
             public void general() {
-                Variables.setXf(Double.parseDouble(xf.getText().isEmpty() ? "0" : xf.getText()));
+                try {
+                    Variables.setXf(Double.parseDouble(xf.getText()));
+                }
+                catch (Exception e) {
+                    Variables.setXf(0);
+                }
             }
         });
         yf.getDocument().addDocumentListener(new DocumentListener() {
@@ -138,7 +163,12 @@ public class RobotInterface extends JFrame {
                 general();
             }
             public void general() {
-                Variables.setYf(Double.parseDouble(yf.getText().isEmpty() ? "0" : yf.getText()));
+                try {
+                    Variables.setYf(Double.parseDouble(yf.getText()));
+                }
+                catch (Exception e) {
+                    Variables.setYf(0);
+                }
             }
         });
         of.getDocument().addDocumentListener(new DocumentListener() {
@@ -152,7 +182,12 @@ public class RobotInterface extends JFrame {
                 general();
             }
             public void general() {
-                Variables.setOf(Double.parseDouble(of.getText().isEmpty() ? "0" : of.getText()));
+                try {
+                    Variables.setOf(Double.parseDouble(of.getText()));
+                }
+                catch (Exception e) {
+                    Variables.setOf(0);
+                }
             }
         });
         trajectory.addActionListener((e) -> TrajectoryManager.run((int) Variables.getXf(), (int) Variables.getYf(), (int) Variables.getOf()));
@@ -164,15 +199,15 @@ public class RobotInterface extends JFrame {
                 Variables.setOn(true);
                 if (!Variables.getRobot().open(Variables.getRobotName())) {
                     Variables.setOn(false);
-                    on.setEnabled(false);
+                    //on.setEnabled(false);
                 }
                 else {
                     Variables.getRobot().stop(true);
-                    on.setEnabled(true);
+                    //on.setEnabled(true);
                 }
             }
             else {
-                on.setEnabled(false);
+                //on.setEnabled(false);
                 Variables.getRobot().close();
                 Variables.setOn(false);
             }

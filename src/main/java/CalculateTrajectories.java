@@ -9,7 +9,7 @@ public class CalculateTrajectories {
         double c = -(Math.pow(xf, 2) + Math.pow(yfabs, 2));
 
         double calculatedRadius = 0;
-        if (Math.abs(a) >= 0.001) calculatedRadius = (-b + Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
+        if (Math.abs(a) >= 0.1) calculatedRadius = (-b + Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
         else calculatedRadius = -c/b;
         System.out.println("Calculated Radius:" +  calculatedRadius);
 
@@ -30,7 +30,7 @@ public class CalculateTrajectories {
         double a = 2 - 2 * cosOf;
         double b = 2 * yfabs * (1 + cosOf) - 2 * xf * sinOf;
         double c = -(Math.pow(xf, 2) + Math.pow(yfabs, 2));
-        if (Math.abs(a) >= 0.001) calculatedRadius = (-b + Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
+        if (Math.abs(a) >= 0.1) calculatedRadius = (-b + Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
         else calculatedRadius = -c/b;
         System.out.println("Calculated Radius:" +  calculatedRadius);
 
@@ -52,7 +52,7 @@ public class CalculateTrajectories {
         double b = 2 * yfabs * (1 + cosOf) + 2 * xf * sinOf;
         double c = -(Math.pow(xf, 2) + Math.pow(yfabs, 2));
 
-        if(Math.abs(a) >= 0.001) calculatedRadius = (-b + Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
+        if(Math.abs(a) >= 0.1) calculatedRadius = (-b + Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
         else calculatedRadius = -c / b;
         System.out.println("Calculated Radius:" +  calculatedRadius);
 

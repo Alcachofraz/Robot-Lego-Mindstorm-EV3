@@ -12,6 +12,8 @@ public class Variables {
     static final int MAX_SPEED = 85;
     static final int TOUCH_SENSOR = 1;
     static final int DISTANCE_SENSOR = 0;
+    static final int DISTANCE_BETWEEN_DETECTIONS_CM = 5;
+    static final int MINIMUM_DIFFERENCE_TO_ALIGN = 2;
 
     static final boolean usePrediction = true;
     private static String robotName = "";

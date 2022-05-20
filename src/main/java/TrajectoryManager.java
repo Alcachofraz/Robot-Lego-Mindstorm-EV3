@@ -16,6 +16,7 @@ public class TrajectoryManager {
      * R being the rect that intersects (xf, yf) with angle of.
      */
     private static Trajectory chooseTrajectory(int xf, int yf, int of) {
+        if (yf < 0) of = -of;
         if (of > 0 && xf > yf && Math.abs(Math.tan(Math.toRadians(180 - 90 - of)) * yf) <= xf) {
             System.out.println("Chose Trajectory 1");
             return CalculateTrajectories.calculateTrajectory1(
@@ -39,12 +40,6 @@ public class TrajectoryManager {
     }
 
     public static void runWallChaser() {
-        Variables.getRobot().forward(0);
-        Variables.getRobot().untilCollision();
-        Variables.getRobot().forward(-70);
-        Variables.getRobot().turnLeft(20, 90);
-        Variables.getRobot().forward(0);
-        Variables.getRobot().untilCollision();
-        Variables.getRobot().stop(false);
+        Variables.getRobot().runWallChaser();
     }
 }
